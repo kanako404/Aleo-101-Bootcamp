@@ -25,7 +25,7 @@
 1. `Fork` 本仓库，然后 `clone` 到你的本地。
 2. 进入 [learn](./learn) 文件夹，创建以你的名字(github用户名)命名的文件夹 `YourName`。
 3. 复制 [Template.md](./Template.md) 文件到刚才创建的文件夹，并将文件重命名为你的名字：`YourName.md`。
-4. 打开 `learn/YourName/YourName.md` 文件，根据文档指引填写你的信息并保存。（**钱包地址用来发奖励，请认真填写**）
+4. 打开 `learn/YourName/YourName.md` 文件，根据文档指引填写你的信息并保存。（**钱包地址用来发奖励，请认真填写**，参考 [Shield Wallet 指南](./Shield_Wallet_guide.md)）
 5. 提交一个 PR 到本仓库，等待合并。| [如何提交PR？](https://juejin.cn/post/7021727244124962846)
 
 ---
