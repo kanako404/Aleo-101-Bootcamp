@@ -1,10 +1,12 @@
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
+
 export default {
   logo: (
     <div className="aleo-logo-nav">
       <span className="aleo-logo-text" role="img" aria-label="Aleo" />
-      <a href="/learn/what-is-aleo/background">Learn</a>
-      <a href="/build/getting-started">Build</a>
-      <a href="/participate/wallets">Participate</a>
+      <a href={`${basePath}/learn/what-is-aleo/background`}>Learn</a>
+      <a href={`${basePath}/build/getting-started`}>Build</a>
+      <a href={`${basePath}/participate/wallets`}>Participate</a>
     </div>
   ),
   logoLink: false,

@@ -5,10 +5,12 @@ const withNextra = require('nextra')({
 
 const isGithubActions = process.env.GITHUB_ACTIONS || false
 const repo = 'Aleo-101-Bootcamp'
+const defaultBasePath = isGithubActions ? `/${repo}` : ''
+const basePath = process.env.BASE_PATH || defaultBasePath
 
 module.exports = withNextra({
   output: 'export',
-  basePath: isGithubActions ? `/${repo}` : '',
+  basePath,
   images: {
     unoptimized: true,
   },
