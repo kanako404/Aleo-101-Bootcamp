@@ -1,6 +1,6 @@
 - 昵称：Risker-C
 - GitHub 用户名：Risker-C
 - 微信：未填写
-- Aleo 钱包地址：aleo1lj2zs258vryvt853j3prn0gqxzch5v22u2a5md04zp7yvw8g5gpse6l8c6
+- Aleo 钱包地址：aleo1r3ejt2727yjcwxefystp2zpqrr2xzydqf8htgs7cuppckmqhlgxq3jqyjv
 - 技术栈：Leo, JavaScript, HTML, CSS
 - 自我介绍：关注 Aleo 隐私应用开发，完成 Aleo 101 Bootcamp task1-task4。
