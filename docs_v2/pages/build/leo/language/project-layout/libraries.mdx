@@ -2,6 +2,165 @@
 title: Libraries
 ---
 
-# Libraries
+# 库 (Libraries)
+
+库是一个包含可复用代码（结构体、常量和辅助函数）的 Leo 项目，旨在跨多个程序共享。与常规的 Leo 程序不同，库没有链上脚印（onchain footprint）：它不声明程序 ID（program ID）、映射（mappings）、记录（records），也不包含入口函数（entry functions）。
+
+## 库的工作原理
+库在编译时进行内联（inlined）。Leo 编译器在输出 Aleo 字节码之前会解析所有的库引用——链上不会出现作为独立程序的库代码。这意味着：
+
+调用库函数的成本与调用内联辅助函数完全相同。
+
+库不能独立部署；它们仅作为源码层面的抽象存在。
+
+库之间不允许出现循环依赖。
+
+欲了解更多关于依赖如何解析和缓存的内容，请参阅 Dependency Management（依赖管理）。
+
+### 名称解析与路径优先级
+当一个库依赖与一个本地子模块（submodule）同名时，以该名称开头的路径将优先解析为库。例如，如果你的项目声明了一个名为 foo 的库依赖，同时还有一个本地子模块`src/foo.leo`，那么`foo::bar`指的是库中的`bar`项，而不是子模块中的`bar`。
+
+**📌 注意**
+
+计划在未来的版本中引入使用绝对路径的显式消除歧义功能（类似于 Rust 中用于本地模块的 `crate::foo::…`）。
+
+## 初始化
+使用带有 --library 标志的 leo new 命令来创建一个库项目：
+```
+leo new math_utils --library
+```
+这将生成与常规 Leo 项目相同的项目结构，只有一个区别：主源文件命名为 `lib.leo `而不是 `main.leo`。
+```
+math_utils/
+├── program.json
+├── src/
+│   └── lib.leo
+└── tests/
+    └── test_math_utils.leo
+```
+## 定义
+库源文件 (`lib.leo`) 可以包含结构体（struct）定义、常量（const）声明和函数`（fn)`定义。它不包含 `program { } `块。
+```
+/// The maximum value representable by a u32.
+const MAX_U32: u32 = 4294967295u32;
+
+/// A 2-D point with integer coordinates.
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+/// Returns the absolute value of a signed 32-bit integer.
+fn abs(x: i32) -> i32 {
+    return x >= 0i32 ? x : 0i32 - x;
+}
+
+/// Returns the Manhattan distance between two points.
+fn manhattan(a: Point, b: Point) -> u32 {
+    let dx: i32 = abs(a.x - b.x);
+    let dy: i32 = abs(a.y - b.y);
+    return dx as u32 + dy as u32;
+}
+```
+### 泛型函数
+库函数支持**常量泛型参数（const generic parameters）**，就像常规的辅助函数一样。具体类型参数必须是编译时常量。
+```
+// src/lib.leo
+
+/// 将 `value` 限制在 [0, MAX] 范围内。
+fn clamp::[MAX: u32](value: u32) -> u32 {
+    return value > MAX ? MAX : value;
+}
+```
+### 子模块
+一个库可以跨越多个源文件。将额外的 `.leo`文件与 `lib.leo `一起放置在 `src/` 目录下即可创建子模块。每个文件都会成为一个以该文件名命名的子模块，其内部的项通过增加一个路径段来访问。
+```
+math_utils/
+└── src/
+    ├── lib.leo       ← root: math_utils::item
+    └── geometry.leo  ← submodule: math_utils::geometry::item
+```
+`src/geometry.leo`
+```
+fn area(width: u32, height: u32) -> u32 {
+    return width * height;
+}
+```
+## 导入
+要在另一个 Leo 项目中使用某个库，需要将其添加到该项目的`program.json`中。目前库**只能从本地文件系统引用**。
+```
+{
+  "program": "my_app.aleo",
+  "version": "0.1.0",
+  "description": "",
+  "license": "MIT",
+  "leo": "4.0.0",
+  "dependencies": [
+    {
+      "name": "math_utils",
+      "location": "local",
+      "path": "../math_utils"
+    }
+  ]
+}
+```
+**ℹ️ 信息**
+
+`leo add` 命令可以自动填充这些条目：
+```
+leo add math_utils --local ../math_utils 
+```
+## 使用
+使用`{library_name}::{item}`路径语法来引用库中的项。**不需要 import 语句**；在`program.json`中的依赖项条目就已经足够了。
+```
+program my_app.aleo {
+    const CEILING: u32 = math_utils::MAX_U32; // Constant from math_utils library
+
+    fn closest(
+        origin: math_utils::Point,
+        a: math_utils::Point,
+        b: math_utils::Point,
+    ) -> math_utils::Point {
+        let da: u32 = math_utils::manhattan(origin, a); // Function from math_utils library
+        let db: u32 = math_utils::manhattan(origin, b);
+        return da <= db ? a : b;
+    }
+
+    fn normalize(x: u32) -> u32 {
+        return math_utils::clamp::[100u32](x); // Generic function from math_utils library
+    }
+
+    fn floor_area(w: u32, h: u32) -> u32 {
+        return math_utils::geometry::area(w, h); // Function from math_utils library submodule
+    }
+
+    @noupgrade
+    constructor() {}
+}
+```
+## 测试
+`leo test`可以直接在库包上运行——不需要包装程`（wrapper program`。将测试文件放在`tests/`目录下，并使用`library_name::item`路径语法调用库函数。
+```
+program test_math_utils.aleo {
+    @test
+    fn test_abs() {
+        assert_eq(math_utils::abs(0i32 - 5i32), 5i32);
+    }
+
+    @test
+    fn test_geometry_area() {
+        assert_eq(math_utils::geometry::area(3u32, 4u32), 12u32);
+    }
+
+    @noupgrade
+    constructor() {}
+}
+```
+在库的根目录下运行：
+```
+leo test
+```
+欲了解更多详情，请参阅 Testing（测试） 指南。
+
 
 TODO: Add Leo libraries content.
