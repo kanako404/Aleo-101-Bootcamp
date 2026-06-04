@@ -2,6 +2,189 @@
 title: Add
 ---
 
-# Add
+# `leo add`
 
-TODO: Add Leo CLI add content.
+`leo add` 命令用于向当前 Leo 项目添加新的链上依赖或本地依赖。
+
+## 添加本地依赖
+
+如果要向项目中添加本地依赖，可以运行以下命令：
+
+```bash
+leo add --local <LOCAL> <NAME>
+```
+
+其中：
+
+- `<NAME>` 是要导入的程序或库的名称；
+- `<LOCAL>` 是本地项目或库的路径。
+
+## 添加链上依赖
+
+如果要将已经部署到链上的程序作为依赖添加到当前项目中，可以运行以下命令：
+
+```bash
+leo add --network <NAME>
+```
+
+其中：
+
+- `<NAME>` 是要导入的链上程序名称。
+
+> **注意**
+>
+> 库只能作为本地依赖添加。如果要添加库，请使用 `--local`。
+
+---
+
+## 参数说明
+
+### `--local <LOCAL>`
+
+### `-l <LOCAL>`
+
+指定要添加的依赖是位于 `<LOCAL>` 路径下的本地程序或库。
+
+`<LOCAL>` 可以是以下几种路径：
+
+- Leo 项目的根目录；
+- Leo 库的根目录；
+- 已经编译完成的 `.aleo` 文件路径。
+
+示例：
+
+```bash
+leo add --local ../my-library my_library
+```
+
+---
+
+### `--network`
+
+### `-n`
+
+指定要添加的依赖是一个已经部署在链上的远程程序。
+
+程序将从 `.env` 文件中 `NETWORK` 变量指定的网络中拉取。
+
+示例：
+
+```bash
+leo add --network credits.aleo
+```
+
+---
+
+### `--edition <EDITION>`
+
+### `-e <EDITION>`
+
+指定被导入程序期望使用的版本。
+
+如果只传入该参数，CLI 会默认认为该程序是从网络中导入的。
+
+> **警告**
+>
+> 除非你非常清楚自己在做什么，否则不要使用该功能。
+
+---
+
+### `--dev`
+
+指定导入的程序是开发依赖，不应该用于生产环境。
+
+示例：
+
+```bash
+leo add --local ../test-helper test_helper --dev
+```
+
+---
+
+### `--clear`
+
+### `-c`
+
+清除之前的所有依赖。
+
+> **警告**
+>
+> 该功能目前存在问题，暂时无法正常使用。
+
+---
+
+## 使用场景
+
+`leo add` 主要用于 Leo 项目的依赖管理，适合以下几类场景：
+
+1. **复用本地库**
+
+   当多个 Leo 项目需要共享同一套工具函数、结构定义或通用逻辑时，可以将公共代码整理成 Leo library，然后通过 `leo add --local` 引入。
+
+2. **引用本地程序**
+
+   如果一个 Leo 项目需要依赖另一个本地 Leo 程序，可以通过本地路径直接导入，方便开发和调试。
+
+3. **引用链上程序**
+
+   如果某个程序已经部署到 Aleo 链上，可以通过 `--network` 将其作为依赖添加到当前项目中。
+
+4. **区分开发依赖和生产依赖**
+
+   使用 `--dev` 可以标记开发阶段使用的依赖，避免将测试辅助程序误用于生产环境。
+
+---
+
+## 常用命令示例
+
+### 添加本地 Leo 项目
+
+```bash
+leo add --local ../my-program my_program
+```
+
+### 添加本地 Leo 库
+
+```bash
+leo add --local ../my-library my_library
+```
+
+### 添加已经编译好的 `.aleo` 文件
+
+```bash
+leo add --local ./build/imports/example.aleo example
+```
+
+### 添加链上程序依赖
+
+```bash
+leo add --network credits.aleo
+```
+
+### 添加开发依赖
+
+```bash
+leo add --local ../dev-helper dev_helper --dev
+```
+
+---
+
+## 总结
+
+`leo add` 是 Leo CLI 中用于管理项目依赖的命令。它既可以添加本地程序或库，也可以添加已经部署在链上的程序。
+
+使用时需要注意：
+
+- 本地程序、本地库和 `.aleo` 文件都可以通过 `--local` 添加；
+- 链上程序可以通过 `--network` 添加；
+- 库只能作为本地依赖添加；
+- `--edition` 属于高级功能，不建议随意使用；
+- `--clear` 当前存在问题，暂时不建议使用。
+
+在实际开发中，最常用的方式通常是：
+
+```bash
+leo add --local <LOCAL> <NAME>
+```
+
+用于在多个 Leo 项目之间复用本地代码。

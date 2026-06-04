@@ -2,6 +2,272 @@
 title: Account
 ---
 
-# Account
+# `leo account`
 
-TODO: Add Leo CLI account content.
+`leo account` 命令用于创建和管理 Aleo 账户，也可以用于对消息进行签名和验证。
+
+> **危险提示**
+>
+> 请务必谨慎管理你的私钥。`leo account` 无法用于找回丢失的私钥。
+
+## 子命令
+
+`leo account` 主要包含以下子命令：
+
+- [`new`](#leo-account-new)：生成一个新的 Aleo 账户。
+- [`import`](#leo-account-import)：通过私钥派生 Aleo 账户。
+- [`sign`](#leo-account-sign)：使用 Aleo 私钥对消息进行签名。
+- [`verify`](#leo-account-verify)：通过 Aleo 地址验证消息和签名。
+- [`decrypt`](#leo-account-decrypt)：使用 Aleo 私钥或查看密钥解密 record 密文。
+
+---
+
+## `leo account new`
+
+该命令用于生成一个新的 Aleo 账户，包括私钥、查看密钥和地址。
+
+输出结果类似如下：
+
+```bash
+Private Key  APrivateKey1zkp...
+   View Key  AViewKey1...
+    Address  aleo1...
+```
+
+### 参数说明
+
+#### `--seed <SEED>`
+
+#### `-s <SEED>`
+
+指定一个数字值，作为随机数生成器 RNG 的种子。
+
+#### `--write`
+
+#### `-w`
+
+将生成的私钥写入当前工作目录下的 `.env` 文件中。
+
+默认写入路径为：
+
+```bash
+./.env
+```
+
+#### `--discreet`
+
+以更加隐蔽的方式在备用屏幕中打印敏感信息，例如私钥。
+
+---
+
+## `leo account import`
+
+该命令用于通过已有私钥派生 Aleo 账户的查看密钥和地址。
+
+导入已有 Aleo 账户时，可以运行：
+
+```bash
+leo account import <PRIVATE_KEY>
+```
+
+其中，`<PRIVATE_KEY>` 是你的私钥。
+
+### 参数说明
+
+#### `--write`
+
+#### `-w`
+
+将生成的私钥写入当前工作目录下的 `.env` 文件中。
+
+默认写入路径为：
+
+```bash
+./.env
+```
+
+#### `--discreet`
+
+以更加隐蔽的方式在备用屏幕中打印敏感信息，例如私钥。
+
+---
+
+## `leo account sign`
+
+该命令用于使用 Aleo 私钥对消息进行签名。
+
+如果当前工作目录是一个 Leo 项目，或者已经设置了 `$PRIVATE_KEY` 环境变量，可以使用以下命令对消息签名：
+
+```bash
+leo account sign --message <MESSAGE>
+```
+
+### 参数说明
+
+#### `--message <MESSAGE>`
+
+#### `-m <MESSAGE>`
+
+> **必填参数**
+>
+> 该参数是必填项。
+
+指定需要签名的消息。
+
+#### `--private-key <PRIVATE_KEY>`
+
+显式指定用于签名消息的私钥。
+
+该参数会覆盖 `.env` 文件或 `$PRIVATE_KEY` 环境变量中的私钥。
+
+#### `--private-key-file <PRIVATE_KEY_FILE>`
+
+通过读取文本文件的方式显式指定私钥。
+
+`<PRIVATE_KEY_FILE>` 表示私钥文件路径。
+
+该参数会覆盖 `.env` 文件或 `$PRIVATE_KEY` 环境变量中的私钥。
+
+#### `--raw`
+
+#### `-r`
+
+将消息解析为字节，而不是 Aleo 字面量。
+
+---
+
+## `leo account verify`
+
+该命令用于通过 Aleo 地址验证消息和签名。
+
+验证消息时，可以运行以下命令：
+
+```bash
+leo account verify --address <ADDRESS> --signature <SIGNATURE> --message <MESSAGE>
+```
+
+其中：
+
+- `<MESSAGE>` 是被签名的消息；
+- `<SIGNATURE>` 是该消息对应的签名；
+- `<ADDRESS>` 是生成该签名的账户地址。
+
+### 参数说明
+
+#### `--address <ADDRESS>`
+
+#### `-a <ADDRESS>`
+
+> **必填参数**
+>
+> 该参数是必填项。
+
+指定生成签名的 Aleo 账户地址。
+
+#### `--signature <SIGNATURE>`
+
+#### `-s <SIGNATURE>`
+
+> **必填参数**
+>
+> 该参数是必填项。
+
+指定消息对应的签名。
+
+#### `--message <MESSAGE>`
+
+#### `-m <MESSAGE>`
+
+> **必填参数**
+>
+> 该参数是必填项。
+
+指定被签名的消息内容。
+
+#### `--raw`
+
+#### `-r`
+
+将消息解析为字节，而不是 Aleo 字面量。
+
+---
+
+## `leo account decrypt`
+
+该命令用于使用 Aleo 私钥或查看密钥解密 record 密文。
+
+如果要使用私钥解密 record 密文，可以运行：
+
+```bash
+leo account decrypt --ciphertext <CIPHERTEXT> -k <KEY>
+```
+
+其中：
+
+- `<CIPHERTEXT>` 是 record 的密文；
+- `<KEY>` 是 record 所有者的私钥。
+
+也可以指定一个包含密钥的文件路径，而不是直接传入密钥本身：
+
+```bash
+leo account decrypt --ciphertext <CIPHERTEXT> -f <PATH_TO_KEYFILE>
+```
+
+如果没有指定密钥，也没有指定密钥文件，CLI 会尝试使用环境变量中的：
+
+```bash
+PRIVATE_KEY
+VIEW_KEY
+```
+
+如果私钥与 record 的所有者不匹配，解密会失败。
+
+### 参数说明
+
+#### `-c <CIPHERTEXT>`
+
+> **必填参数**
+>
+> 该参数是必填项。
+
+指定需要解密的 record 密文。
+
+#### `-k <KEY>`
+
+指定用于解密的私钥或查看密钥。
+
+如果同时传入 `-f` 参数，会触发错误。
+
+#### `-f <KEY_FILE>`
+
+指定包含私钥或查看密钥的文件路径。
+
+如果同时传入 `-k` 参数，会触发错误。
+
+#### `--network <NETWORK>`
+
+指定要使用的网络。
+
+该参数会覆盖手动设置的 `NETWORK` 环境变量，或 `.env` 文件中的 `NETWORK` 配置。
+
+可选网络包括：
+
+```bash
+testnet
+mainnet
+canary
+```
+
+---
+
+## 总结
+
+`leo account` 是 Leo CLI 中用于账户管理的核心命令，主要覆盖以下能力：
+
+- 创建新的 Aleo 账户；
+- 通过私钥导入已有账户；
+- 使用私钥对消息进行签名；
+- 使用地址验证消息签名；
+- 使用私钥或查看密钥解密 record 密文。
+
+在使用该命令时，最重要的是妥善保管私钥。私钥一旦丢失，无法通过 `leo account` 恢复；私钥一旦泄露，账户资产和隐私数据都可能受到影响。
