@@ -7,13 +7,16 @@ record Resume {
     years: u8,
 }
 
+@noupgrade
+constructor() {}
+
 fn create_resume(
     solidity: bool,
     react: bool,
     years: u8,
 ) -> Resume {
     return Resume {
-        owner: self.caller,
+        owner: self.signer,
         solidity,
         react,
         years,
