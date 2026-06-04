@@ -2,6 +2,45 @@
 title: Modules
 ---
 
-# Modules
+# 模块 (Modules)
+
+除主文件外，Leo 自 v3.2.0 版本起还支持模块系统。
+
+叶子模块（Leaf modules，即没有子模块的模块）必须定义在单个文件中（例如 foo.leo）。而带有子模块的模块，则必须由一个可选的顶级 .leo 文件以及一个包含这些子模块的同名子目录来共同定义。
+
+以下面的项目结构为例：
+```
+src
+├── common.leo
+├── main.leo
+├── outer.leo
+└── outer
+    └── inner.leo
+```
+基于上述结构，定义的模块关系如下表所示：
+
+| 文件名 | 类型 | 模块名称 | 访问位置与模式 (Access Location : Pattern) |
+| :--- | :--- | :--- | :--- |
+| `common.leo` | 模块 (Module) | `common` | `main.leo` ：`common::<item>`  |
+| `outer.leo` | 模块 (Module) | `outer` | `main.leo` ：`outer::<item>`  |
+| `outer/inner.leo` | 子模块 (Submodule) | `outer::inner` | `main.leo` ：`outer::inner::<item>` <br>`outer.leo` ：`inner::<item>`  |
+
+📘 提示 (Info)
+
+目前仅实现了相对路径。这意味着，例如 inner.leo 中的内容暂时无法访问 outer.leo 中的内容。虽然这在当前带来了一定的局限性，但在我们引入绝对路径后，该问题将不复存在。
+
+一个模块文件内只能包含结构体（struct）、常量（const）和函数（fn）的定义：
+```
+const X: u32 = 2u32;
+
+struct S {
+    a: field
+}
+
+fn increment(x: field) -> field {
+    return 1field;
+}
+```
+
 
 TODO: Add Leo modules content.
